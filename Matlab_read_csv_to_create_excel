@@ -1,0 +1,34 @@
+/Read Csv
+
+
+% Ordner-Pfad für CSV-Dateien festlegen
+folderPath = '/Users/juliusweidner/trek/data_left_leg';
+processedFolderPath = fullfile(folderPath, 'processed');
+
+% Sicherstellen, dass der 'processed'-Ordner existiert, falls nicht -> erstellen
+if ~exist(processedFolderPath, 'dir')
+    mkdir(processedFolderPath);
+end
+
+% Abrufen der Liste aller CSV-Dateien im Ordner
+fileList = dir(fullfile(folderPath, '*.csv'));
+
+% Schleife zur Verarbeitung jeder neuen CSV-Datei
+for i = 1:length(fileList)
+    % Pfad der aktuellen CSV-Datei
+    fileName = fullfile(folderPath, fileList(i).name);
+    
+    % Einlesen der CSV-Datei in eine Tabelle
+    data = readtable(fileName);
+
+    % Entfernen von Leerzeichen in den Spaltennamen, falls vorhanden
+    data.Properties.VariableNames = strtrim(data.Properties.VariableNames);
+
+    % Speichern der Daten in eine Excel-Datei
+    outputFile = '/Users/juliusweidner/trek/analyse_ergebnisse.xlsx';
+    writetable(data, outputFile, 'Sheet', fileList(i).name(1:end-4)); % Verwenden des Dateinamens als Sheetname
+
+    % Die CSV-Datei als verarbeitet markieren und in den 'processed'-Ordner verschieben
+    movefile(fileName, fullfile(processedFolderPath, fileList(i).name));
+end
+
